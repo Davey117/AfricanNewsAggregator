@@ -70,6 +70,27 @@ router.get('/', async (req, res) => {
 });
 
 /**
+ * @route   GET /api/v1/articles/sources
+ * @desc    Fetch a list of all active educational news targets for frontend dropdown menus
+ * @access  Public
+ */
+router.get('/meta/sources', async (req, res) => {
+  try {
+    const { Source } = require('../models'); // Lazy load to prevent file looping
+    const sources = await Source.find({ isActive: true }).select('name siteUrl country defaultCategory').lean();
+    
+    res.status(200).json({
+      status: 'success',
+      results: sources.length,
+      data: { sources }
+    });
+  } catch (error) {
+    console.error(`[API ROUTE ERROR] Sources meta fetch failure: ${error.message}`);
+    res.status(500).json({ status: 'error', message: 'Failed to retrieve media sources.' });
+  }
+});
+
+/**
  * @route   GET /api/v1/articles/:id
  * @desc    Fetch a single detailed article record by its absolute ObjectId reference
  * @access  Public
@@ -99,27 +120,6 @@ router.get('/:id', async (req, res) => {
       return res.status(400).json({ status: 'error', message: 'Malformed resource ID format reference.' });
     }
     res.status(500).json({ status: 'error', message: 'Internal server configuration processing failure.' });
-  }
-});
-
-/**
- * @route   GET /api/v1/articles/sources
- * @desc    Fetch a list of all active educational news targets for frontend dropdown menus
- * @access  Public
- */
-router.get('/meta/sources', async (req, res) => {
-  try {
-    const { Source } = require('../models'); // Lazy load to prevent file looping
-    const sources = await Source.find({ isActive: true }).select('name siteUrl country defaultCategory').lean();
-    
-    res.status(200).json({
-      status: 'success',
-      results: sources.length,
-      data: { sources }
-    });
-  } catch (error) {
-    console.error(`[API ROUTE ERROR] Sources meta fetch failure: ${error.message}`);
-    res.status(500).json({ status: 'error', message: 'Failed to retrieve media sources.' });
   }
 });
 

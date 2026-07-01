@@ -80,22 +80,29 @@ router.delete('/:id', protectAdminRoute, async (req, res) => {
 router.post('/refresh', protectAdminRoute, async (req, res) => {
   try {
     // 1. Extract optional priority sorting flags from payload stream
-    const { priority = 'high' } = req.body;
+    const { priority = 'all' } = req.body;
+    const normalizedPriority = String(priority).toLowerCase();
 
-    if (!['high', 'standard', 'low'].includes(priority.toLowerCase())) {
+    if (!['all', 'high', 'standard', 'low'].includes(normalizedPriority)) {
       return res.status(400).json({
         status: 'fail',
         message: 'Invalid priority tier parameter designated.'
       });
     }
 
-    console.log(`[MANUAL TRIGGER] Admin user ${req.adminUser.email} initiated an immediate sync for tier: ${priority}`);
-    // but running it inline allows us to report results directly to the admin panel.
-    await runIngestionPipeline(priority.toLowerCase());
+    console.log(`[MANUAL TRIGGER] Admin user ${req.adminUser.email} initiated an immediate sync for tier: ${normalizedPriority}`);
+
+    if (normalizedPriority === 'all') {
+      for (const tier of ['high', 'standard', 'low']) {
+        await runIngestionPipeline(tier);
+      }
+    } else {
+      await runIngestionPipeline(normalizedPriority);
+    }
 
     res.status(200).json({
       status: 'success',
-      message: `Ingestion cycle swept and compiled successfully for priority tier: ${priority}`
+      message: `Ingestion cycle swept and compiled successfully for priority tier: ${normalizedPriority}`
     });
 
   } catch (error) {

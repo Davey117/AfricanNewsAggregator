@@ -1,10 +1,15 @@
 // src/components/ArticleCard.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 export default function ArticleCard({ article }) {
   if (!article) return null;
 
   const { title, summary, url, category, country, publishedAt, imageUrl } = article;
+  const [imageBroken, setImageBroken] = useState(false);
+
+  useEffect(() => {
+    setImageBroken(false);
+  }, [imageUrl]);
 
   // Render a clean fallback background gradient if no source image is extracted
   const fallbackImageBg = "linear-gradient(135deg, #10b981 0%, #065f46 100%)";
@@ -13,15 +18,26 @@ export default function ArticleCard({ article }) {
     <article className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow duration-200 min-w-[280px]">
       
       {/* Card Header Media Workspace */}
-      <div 
-        className="w-full h-40 flex items-center justify-center text-white p-4 font-bold relative text-sm select-none"
-        style={{ 
-          backgroundImage: imageUrl ? `url(${imageUrl})` : fallbackImageBg,
+      <div
+        className="w-full h-40 flex items-center justify-center text-white p-4 font-bold relative text-sm select-none overflow-hidden"
+        style={{
+          backgroundImage: !imageUrl || imageBroken ? fallbackImageBg : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
       >
-        {!imageUrl && (
+        {imageUrl && !imageBroken && (
+          <img
+            src={imageUrl}
+            alt={title}
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={() => setImageBroken(true)}
+            referrerPolicy="no-referrer"
+          />
+        )}
+
+        {(!imageUrl || imageBroken) && (
           <span className="text-center tracking-wide drop-shadow-sm uppercase text-xs">
             {category}
           </span>

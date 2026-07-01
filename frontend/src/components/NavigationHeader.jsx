@@ -12,7 +12,7 @@ export default function NavigationHeader() {
         {/* Academic Platform Identity */}
         <div className="flex items-center space-x-2 w-full sm:w-auto justify-start">
           <h1 className="text-xl font-bold tracking-tight text-emerald-400 text-center sm:text-left w-full sm:w-auto">
-            African NEWS Aggregator
+            African Educational News Aggregator
           </h1>
         </div>
 

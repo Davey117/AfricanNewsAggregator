@@ -1,8 +1,31 @@
 // backend/seedSources.js
 const path = require('path');
 const mongoose = require('mongoose');
-const { Source } = require('./models'); 
+const { Source, Category } = require('./models'); 
 require('dotenv').config({ path: path.join(__dirname, '.env') });
+
+const dummyCategories = [
+  {
+    name: 'Higher Education',
+    slug: 'higher-education',
+    description: 'Articles and news about universities, polytechnics, research, admissions, and academic life.'
+  },
+  {
+    name: 'Policy and Governance',
+    slug: 'policy-and-governance',
+    description: 'Coverage of educational policy, regulation, administration, and governance reforms.'
+  },
+  {
+    name: 'Institutional Funding',
+    slug: 'institutional-funding',
+    description: 'Coverage of scholarships, grants, budgets, and funding initiatives for African education.'
+  },
+  {
+    name: 'Research and Innovation',
+    slug: 'research-and-innovation',
+    description: 'Stories on academic research, innovation, edtech, and science development in education.'
+  }
+];
 
 const dummySources = [
   // ==========================================================================
@@ -19,26 +42,6 @@ const dummySources = [
     defaultCategory: "Higher Education"
   },
   {
-    name: "Punch Newspapers - Sports",
-    siteUrl: "https://punchng.com/topics/sports/",
-    feedUrl: "https://punchng.com/topics/sports/feed/",
-    feedType: "rss",
-    country: "NG",
-    isActive: true,
-    priority: "high",
-    defaultCategory: "Sports"
-  },
-  {
-    name: "Vanguard News - Sports",
-    siteUrl: "https://www.vanguardngr.com/category/sports/",
-    feedUrl: "https://www.vanguardngr.com/category/sports/", 
-    feedType: "scrape-static",
-    country: "NG",
-    isActive: true,
-    priority: "high",
-    defaultCategory: "Sports"
-  },
-  {
     name: "Premium Times - Education",
     siteUrl: "https://www.premiumtimesng.com/category/news/top-news",
     feedUrl: "https://www.premiumtimesng.com/category/features-and-interviews/education-features/feed",
@@ -53,24 +56,14 @@ const dummySources = [
   // ============================= GHANA FEEDS ================================
   // ==========================================================================
   {
-    name: "GhanaWeb - General News",
-    siteUrl: "https://www.ghanaweb.com",
+    name: "GhanaWeb - Education",
+    siteUrl: "https://www.ghanaweb.com/GhanaHomePage/education/",
     feedUrl: "https://cdn.ghanaweb.com/feed/newsfeed.xml",
     feedType: "scrape-static",
     country: "GH",
     isActive: true,
     priority: "high",
     defaultCategory: "Policy and Governance"
-  },
-  {
-    name: "GhanaWeb - Sports",
-    siteUrl: "https://www.ghanaweb.com",
-    feedUrl: "https://cdn.ghanaweb.com/feed/sportsfeed.xml",
-    feedType: "scrape-static",
-    country: "GH",
-    isActive: true,
-    priority: "high",
-    defaultCategory: "Sports"
   },
   {
     name: "ModernGhana - Higher Education",
@@ -81,16 +74,6 @@ const dummySources = [
     isActive: true,
     priority: "high",
     defaultCategory: "Higher Education"
-  },
-  {
-    name: "Graphic Online - Sports",
-    siteUrl: "https://www.graphic.com.gh/sports.html",
-    feedUrl: "https://www.graphic.com.gh/sports.xml",
-    feedType: "rss",
-    country: "GH",
-    isActive: true,
-    priority: "high",
-    defaultCategory: "Sports"
   },
 
   // ==========================================================================
@@ -105,26 +88,6 @@ const dummySources = [
     isActive: true,
     priority: "high",
     defaultCategory: "Higher Education"
-  },
-  {
-    name: "The Standard Kenya - Sports",
-    siteUrl: "https://www.standardmedia.co.ke/category/4/sports",
-    feedUrl: "https://www.standardmedia.co.ke/rss/sports.php",
-    feedType: "rss",
-    country: "KE",
-    isActive: true,
-    priority: "high",
-    defaultCategory: "Sports"
-  },
-  {
-    name: "Citizen Digital Kenya - Sports",
-    siteUrl: "https://www.citizen.digital/sports",
-    feedUrl: "https://www.citizen.digital/rss/sports",
-    feedType: "rss",
-    country: "KE",
-    isActive: true,
-    priority: "high",
-    defaultCategory: "Sports"
   },
   {
     name: "Business Daily Kenya - Policy",
@@ -146,11 +109,13 @@ async function seedDatabase() {
 
     // Wipe old mappings cleanly
     await Source.deleteMany({});
-    console.log('[SEED] Stale sources cleared from database records.');
+    await Category.deleteMany({});
+    console.log('[SEED] Stale sources and category taxonomy cleared from database records.');
 
-    // Write the newly expanded regional array entries
+    // Write the newly expanded taxonomy and regional source entries
+    await Category.insertMany(dummyCategories);
     await Source.insertMany(dummySources);
-    console.log(`[SEED SUCCESS] ${dummySources.length} active regional sources registered smoothly!`);
+    console.log(`[SEED SUCCESS] ${dummyCategories.length} categories and ${dummySources.length} active regional sources registered smoothly!`);
 
   } catch (err) {
     console.error('Seeding halted with error:', err);

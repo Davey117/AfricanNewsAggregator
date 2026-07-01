@@ -10,7 +10,11 @@ const REFRESH_INTERVAL = 30 * 60 * 1000;
 async function executePipelineCycle() {
   try {
     console.log(`\n[AUTOMATION] Synchronizing database tracking records with external news nodes...`);
-    await runIngestionPipeline('high'); // Run your multi-tier fallback crawl loop
+    // Sweep all tiers so standard/low sources are not starved.
+    for (const tier of ['high', 'standard', 'low']) {
+      console.log(`[AUTOMATION] Running ingestion tier: ${tier}`);
+      await runIngestionPipeline(tier);
+    }
     console.log(`[AUTOMATION] Synchronization cycle complete. Going to sleep for 30 minutes...`);
   } catch (error) {
     console.error(`[AUTOMATION CRITICAL ERROR] Run cycle encountered a break:`, error);

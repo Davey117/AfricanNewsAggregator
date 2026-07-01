@@ -25,6 +25,7 @@ function AdminDashboard({ onClose }) {
   const [loginForm, setLoginForm] = useState({ email: 'admin@kwasu.edu.ng', password: 'password123' });
   const [sourceForm, setSourceForm] = useState(defaultSourceForm);
   const [sources, setSources] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState({ type: '', text: '' });
@@ -33,6 +34,7 @@ function AdminDashboard({ onClose }) {
     if (token) {
       setIsLoggedIn(true);
       loadSources();
+      loadCategories();
     }
   }, [token]);
 
@@ -48,6 +50,22 @@ function AdminDashboard({ onClose }) {
       setStatus({ type: 'error', text: error.message });
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadCategories() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/categories`);
+      if (!response.ok) {
+        throw new Error('Category taxonomy fetch failed');
+      }
+      const payload = await response.json();
+      if (payload.status === 'success' && Array.isArray(payload.data.categories)) {
+        setCategories(payload.data.categories);
+      }
+    } catch (error) {
+      console.error('[ADMIN DASHBOARD] Could not load category taxonomy:', error.message);
+      setCategories([]);
     }
   }
 
@@ -196,7 +214,7 @@ function AdminDashboard({ onClose }) {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">Admin Control Center</p>
-              <h1 className="mt-2 text-3xl font-semibold text-white">Manage your African News Aggregator</h1>
+              <h1 className="mt-2 text-3xl font-semibold text-white">Manage your African Educational News Aggregator</h1>
               <p className="mt-2 max-w-2xl text-sm text-slate-300">
                 Securely sign in, manage source registries, and launch ingestion jobs without leaving the browser.
               </p>
@@ -408,12 +426,27 @@ function AdminDashboard({ onClose }) {
                       </div>
                       <div>
                         <label className="mb-2 block text-sm text-slate-300">Default Category</label>
-                        <input
-                          type="text"
+                        <select
                           className="w-full rounded-xl border border-white/10 bg-slate-800 px-3 py-2.5 text-sm outline-none focus:border-emerald-400"
                           value={sourceForm.defaultCategory}
                           onChange={(event) => setSourceForm((current) => ({ ...current, defaultCategory: event.target.value }))}
-                        />
+                        >
+                          <option value="">Select category</option>
+                          {categories.length > 0 ? (
+                            categories.map((category) => (
+                              <option key={category.slug} value={category.name}>
+                                {category.name}
+                              </option>
+                            ))
+                          ) : (
+                            <>
+                              <option value="Higher Education">Higher Education</option>
+                              <option value="Policy and Governance">Policy and Governance</option>
+                              <option value="Institutional Funding">Institutional Funding</option>
+                              <option value="Research and Innovation">Research and Innovation</option>
+                            </>
+                          )}
+                        </select>
                       </div>
                       <div>
                         <label className="mb-2 block text-sm text-slate-300">Priority</label>

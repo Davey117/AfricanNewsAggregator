@@ -144,6 +144,39 @@ ArticleSchema.index(
 const Article = mongoose.model('Article', ArticleSchema);
 
 /**
+ * CATEGORY SCHEMA
+ * Captures the curated educational taxonomy used by the public search and filtering API.
+ */
+const CategorySchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, 'Category name is required'],
+    trim: true,
+    unique: true
+  },
+  slug: {
+    type: String,
+    required: [true, 'Category slug is required'],
+    trim: true,
+    lowercase: true,
+    unique: true
+  },
+  description: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  }
+}, {
+  timestamps: true
+});
+
+const Category = mongoose.model('Category', CategorySchema);
+
+/**
  * FEED LOG SCHEMA
  * Operates as a persistent audit recorder tracking the health of your ingestion workers[cite: 501].
  */
@@ -221,10 +254,10 @@ const UserSchema = new mongoose.Schema({
 // Compile the model
 const User = mongoose.model('User', UserSchema);
 
-// UPDATE EXPORTS LAYER at the absolute bottom of models.js to include User
 module.exports = {
   Source,
   Article,
+  Category,
   FeedLog,
   User
 };

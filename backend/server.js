@@ -13,6 +13,7 @@ const { initScheduler } = require('./services/scheduler');
 const articleRouter = require('./routes/articleRoutes'); // Import V1 routes
 const authRouter = require('./routes/authRoutes');
 const feedRouter = require('./routes/feedRoutes'); // Import the feed administration router module
+const categoryRouter = require('./routes/categoryRoutes');
 const { protectAdminRoute } = require('./services/authMiddleware');
 
 const app = express();
@@ -44,6 +45,7 @@ app.use('/api/v1', apiRateLimiter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/feed', feedRouter); // Private gateway router block mounted directly
 app.use('/api/v1/articles', articleRouter); // Register V1 collection path routes
+app.use('/api/v1/categories', categoryRouter); // Public educational taxonomy lookup endpoint
 
 app.post('/api/v1/feed/auto-crawl', protectAdminRoute, async (req, res) => {
   try {
@@ -75,13 +77,12 @@ mongoose.connect(MONGODB_URI)
   .then(() => {
     console.log('[DATABASE SUCCESS] Connected securely to cloud MongoDB Atlas cluster.');
     initScheduler(); // Ground automated parsing schedules safely
+
+    app.listen(PORT, () => {
+      console.log(`[SERVER ACTIVE] Operational on production port: ${PORT} in ${NODE_ENV} mode`);
+    });
   })
   .catch((error) => {
     console.error('[DATABASE CRASH] Connection dropped! Details:', error.message);
     process.exit(1);
   });
-
-// Single Unified Production Listener
-app.listen(PORT, () => {
-  console.log(`[SERVER ACTIVE] Operational on production port: ${PORT} in ${NODE_ENV} mode`);
-});

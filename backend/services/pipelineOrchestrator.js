@@ -75,6 +75,11 @@ async function runIngestionPipeline(priorityFilter = null) {
 
           const finalCategory = categorizeArticle(candidate.title, candidate.summary, source);
 
+          if (!finalCategory) {
+            console.log(`[PIPELINE FILTER] Skipping non-educational article: "${candidate.title}"`);
+            continue;
+          }
+
           const newArticle = new Article({
             title: candidate.title,
             summary: candidate.summary || 'No summary available.',
@@ -82,7 +87,8 @@ async function runIngestionPipeline(priorityFilter = null) {
             sourceId: source._id,
             category: finalCategory,
             country: source.country,
-            publishedAt: candidate.publishedAt || new Date()
+            publishedAt: candidate.publishedAt || new Date(),
+            imageUrl: candidate.imageUrl || null
           });
 
           await newArticle.save();
