@@ -1,5 +1,6 @@
 // server.js
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -12,6 +13,7 @@ const { initScheduler } = require('./services/scheduler');
 const articleRouter = require('./routes/articleRoutes'); // Import V1 routes
 const authRouter = require('./routes/authRoutes');
 const feedRouter = require('./routes/feedRoutes'); // Import the feed administration router module
+const { protectAdminRoute } = require('./services/authMiddleware');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -42,6 +44,21 @@ app.use('/api/v1', apiRateLimiter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/feed', feedRouter); // Private gateway router block mounted directly
 app.use('/api/v1/articles', articleRouter); // Register V1 collection path routes
+
+app.post('/api/v1/feed/auto-crawl', protectAdminRoute, async (req, res) => {
+  try {
+    console.log(`[CLOUD CRON] Admin trigger active for ${req.adminUser?.email || 'unknown admin'}. Initializing data sync...`);
+
+    const { runIngestionPipeline } = require('./services/pipelineOrchestrator');
+    runIngestionPipeline('high')
+      .then(() => console.log('[CLOUD CRON] Background sync complete.'))
+      .catch((err) => console.error('[CLOUD CRON ERROR]', err));
+
+    res.status(200).json({ status: 'success', message: 'Ingestion pipeline processing initiated.' });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
 
 app.get('/api/v1/health', (req, res) => {
   res.status(200).json({ status: 'healthy', environment: NODE_ENV, timestamp: new Date() });

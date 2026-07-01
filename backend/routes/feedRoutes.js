@@ -3,6 +3,74 @@ const express = require('express');
 const router = express.Router();
 const { runIngestionPipeline } = require('../services/pipelineOrchestrator');
 const { protectAdminRoute } = require('../services/authMiddleware');
+const { Source } = require('../models');
+
+/**
+ * @route   GET /api/v1/feed
+ * @desc    Fetch all active source registries for the admin dashboard
+ * @access  Private (Administrators Only)
+ */
+router.get('/', protectAdminRoute, async (req, res) => {
+  try {
+    const sources = await Source.find({}).sort({ createdAt: -1 }).lean();
+    res.status(200).json({
+      status: 'success',
+      data: { sources }
+    });
+  } catch (error) {
+    console.error(`[FEED ROUTE ERROR] Source fetch failed: ${error.message}`);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to retrieve source registry records.'
+    });
+  }
+});
+
+/**
+ * @route   POST /api/v1/feed
+ * @desc    Add a news source registry entry
+ * @access  Private (Administrators Only)
+ */
+router.post('/', protectAdminRoute, async (req, res) => {
+  try {
+    const source = await Source.create(req.body);
+    res.status(201).json({
+      status: 'success',
+      data: { source }
+    });
+  } catch (error) {
+    console.error(`[FEED ROUTE ERROR] Source creation failed: ${error.message}`);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to create source registry entry.'
+    });
+  }
+});
+
+/**
+ * @route   DELETE /api/v1/feed/:id
+ * @desc    Remove a source registry entry
+ * @access  Private (Administrators Only)
+ */
+router.delete('/:id', protectAdminRoute, async (req, res) => {
+  try {
+    const source = await Source.findByIdAndDelete(req.params.id);
+    if (!source) {
+      return res.status(404).json({ status: 'fail', message: 'Source not found.' });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Source deleted successfully.'
+    });
+  } catch (error) {
+    console.error(`[FEED ROUTE ERROR] Source deletion failed: ${error.message}`);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to delete source registry entry.'
+    });
+  }
+});
 
 /**
  * @route   POST /api/v1/feed/refresh

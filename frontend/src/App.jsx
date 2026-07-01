@@ -1,32 +1,52 @@
 // src/App.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import NavigationHeader from './components/NavigationHeader';
 import CategorySidebar from './components/CategorySidebar';
 import ArticleCard from './components/ArticleCard';
+import AdminDashboard from './components/AdminDashboard';
 import { useFetchArticles } from './hooks/useFetchArticles';
 import { useSearchAndFilter } from './context/SearchAndFilterContext';
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+function normalizePath(pathname) {
+  if (!pathname || pathname === '/') return '/';
+  return pathname.replace(/\/+$/, '') || '/';
+}
 
 function App() {
   const { articles, loading, error, paginationData } = useFetchArticles();
   const { currentPage, setCurrentPage } = useSearchAndFilter();
+  const [currentPath, setCurrentPath] = useState(() => normalizePath(window.location.pathname));
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setCurrentPath(normalizePath(window.location.pathname));
+    };
+
+    window.addEventListener('popstate', handleLocationChange);
+    return () => window.removeEventListener('popstate', handleLocationChange);
+  }, []);
+
+  const navigateTo = (path) => {
+    const nextPath = normalizePath(path);
+    window.history.pushState({}, '', nextPath);
+    setCurrentPath(nextPath);
+  };
+
+  const isAdminRoute = currentPath === '/admin';
+
+  if (isAdminRoute) {
+    return <AdminDashboard onClose={() => navigateTo('/')} />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans antialiased text-slate-800 selection:bg-emerald-100 selection:text-emerald-900">
-      
-      {/* 1. Sticky Application Top Search Control Bar */}
+
       <NavigationHeader />
 
-      {/* Main Framework Working Desktop Canvas */}
       <div className="max-w-7xl w-full mx-auto flex-grow flex flex-col md:flex-row px-4 py-6 gap-6">
-        
-        {/* 2. Left Structural Filter Selection Workspace */}
         <CategorySidebar />
 
-        {/* Right Content Presentation Layout Canvas */}
         <main className="flex-grow flex flex-col justify-between">
-          
-          {/* Dynamic Handling Conditions Block */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl p-4 font-semibold shadow-sm mb-6">
               ⚠️ Ingestion Retrieval Alert: {error}. Check your backend server state loop logs.
@@ -34,7 +54,6 @@ function App() {
           )}
 
           {loading ? (
-            // Skeleton Layout Matrix or Standard Loading Stream State
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
               {[...Array(6)].map((_, index) => (
                 <div key={index} className="bg-white border border-slate-200 rounded-xl h-72 p-4 flex flex-col justify-between">
@@ -46,7 +65,6 @@ function App() {
               ))}
             </div>
           ) : articles.length === 0 ? (
-            // Zero Results Descriptive Fallback
             <div className="flex flex-col items-center justify-center text-center p-12 bg-white rounded-xl border border-slate-200 border-dashed max-w-xl mx-auto w-full mt-8">
               <span className="text-3xl mb-2">🔍</span>
               <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">No STEM Documents Found</h3>
@@ -55,7 +73,6 @@ function App() {
               </p>
             </div>
           ) : (
-            // 3. Normalized Article Card Render Matrix Loop
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {articles.map((article) => (
                 <ArticleCard key={article._id} article={article} />
@@ -63,7 +80,6 @@ function App() {
             </div>
           )}
 
-          {/* 4. Atomic Pagination Footer Controller Strip */}
           {paginationData.totalPages > 1 && (
             <div className="flex items-center justify-center space-x-2 border-t border-slate-200 pt-6 mt-8">
               <button
@@ -73,7 +89,7 @@ function App() {
               >
                 ← Previous
               </button>
-              
+
               <div className="text-xs font-bold text-slate-500 tracking-wide px-3">
                 Page {currentPage} of {paginationData.totalPages}
               </div>
@@ -87,7 +103,6 @@ function App() {
               </button>
             </div>
           )}
-
         </main>
       </div>
     </div>

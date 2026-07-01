@@ -1,7 +1,8 @@
 // backend/seedSources.js
+const path = require('path');
 const mongoose = require('mongoose');
 const { Source } = require('./models'); 
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const dummySources = [
   // ==========================================================================

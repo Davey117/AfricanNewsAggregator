@@ -1,7 +1,8 @@
 // backend/auditWorker.js
+const path = require('path');
 const { performance } = require('perf_hooks');
 const mongoose = require('mongoose');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 async function runAudit() {
   const start = performance.now();
