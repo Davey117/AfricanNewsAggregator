@@ -29,6 +29,7 @@ function AdminDashboard({ onClose }) {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState({ type: '', text: '' });
+  const [crawlPriority, setCrawlPriority] = useState('all');
 
   useEffect(() => {
     if (token) {
@@ -187,7 +188,7 @@ function AdminDashboard({ onClose }) {
     try {
       const payload = await request('/api/v1/feed/auto-crawl', {
         method: 'POST',
-        body: JSON.stringify({ priority: 'high' }),
+        body: JSON.stringify({ priority: crawlPriority }),
       });
       setStatus({ type: 'success', text: payload.message || 'Crawl pipeline started successfully.' });
     } catch (error) {
@@ -488,14 +489,27 @@ function AdminDashboard({ onClose }) {
                       Trigger the ingestion workflow to scrape and normalize fresh content from all active sources.
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleTriggerCrawl}
-                    disabled={submitting}
-                    className="rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    {submitting ? 'Starting crawl...' : 'Run Ingestion Pipeline'}
-                  </button>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <select
+                      value={crawlPriority}
+                      onChange={(event) => setCrawlPriority(event.target.value)}
+                      disabled={submitting}
+                      className="rounded-xl border border-white/10 bg-slate-800 px-4 py-3 text-sm text-slate-100 outline-none focus:border-emerald-400 disabled:opacity-70"
+                    >
+                      <option value="all">All Priorities</option>
+                      <option value="high">High Priority</option>
+                      <option value="standard">Standard Priority</option>
+                      <option value="low">Low Priority</option>
+                    </select>
+                    <button
+                      type="button"
+                      onClick={handleTriggerCrawl}
+                      disabled={submitting}
+                      className="rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      {submitting ? 'Starting crawl...' : `Run ${crawlPriority === 'all' ? 'Full' : crawlPriority} Ingestion`}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

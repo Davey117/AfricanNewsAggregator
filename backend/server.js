@@ -49,14 +49,31 @@ app.use('/api/v1/categories', categoryRouter); // Public educational taxonomy lo
 
 app.post('/api/v1/feed/auto-crawl', protectAdminRoute, async (req, res) => {
   try {
-    console.log(`[CLOUD CRON] Admin trigger active for ${req.adminUser?.email || 'unknown admin'}. Initializing data sync...`);
+    const selectedPriority = String(req.body?.priority || 'all').toLowerCase();
+    const allowedPriorities = ['all', 'high', 'standard', 'low'];
+
+    if (!allowedPriorities.includes(selectedPriority)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid priority value. Use all, high, standard, or low.'
+      });
+    }
+
+    console.log(`[CLOUD CRON] Admin trigger active for ${req.adminUser?.email || 'unknown admin'}. Initializing ${selectedPriority} sync...`);
 
     const { runIngestionPipeline } = require('./services/pipelineOrchestrator');
-    runIngestionPipeline('high')
-      .then(() => console.log('[CLOUD CRON] Background sync complete.'))
+    const tiers = selectedPriority === 'all'
+      ? ['high', 'standard', 'low']
+      : [selectedPriority];
+
+    Promise.all(tiers.map((tier) => runIngestionPipeline(tier)))
+      .then(() => console.log(`[CLOUD CRON] Background ${selectedPriority} sync complete.`))
       .catch((err) => console.error('[CLOUD CRON ERROR]', err));
 
-    res.status(200).json({ status: 'success', message: 'Ingestion pipeline processing initiated.' });
+    res.status(200).json({
+      status: 'success',
+      message: `Ingestion pipeline processing initiated for ${selectedPriority} priority scope.`
+    });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }
