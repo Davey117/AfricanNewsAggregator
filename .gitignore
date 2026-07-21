@@ -33,6 +33,7 @@ backend/.env
 # Frontend specific
 frontend/node_modules/
 frontend/dist/
+frontend/.env
 frontend/.env.development
 frontend/.env.production
 

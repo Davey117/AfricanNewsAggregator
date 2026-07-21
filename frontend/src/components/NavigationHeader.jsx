@@ -43,9 +43,62 @@ export default function NavigationHeader() {
             value={selectedCountry}
             onChange={(e) => setSelectedCountry(e.target.value)}
           >
-            <option value="NG">Nigeria (NG)</option>
+            <option value="DZ">Algeria (DZ)</option>
+            <option value="AO">Angola (AO)</option>
+            <option value="BJ">Benin (BJ)</option>
+            <option value="BW">Botswana (BW)</option>
+            <option value="BF">Burkina Faso (BF)</option>
+            <option value="BI">Burundi (BI)</option>
+            <option value="CV">Cabo Verde (CV)</option>
+            <option value="CM">Cameroon (CM)</option>
+            <option value="CF">Central African Republic (CF)</option>
+            <option value="TD">Chad (TD)</option>
+            <option value="KM">Comoros (KM)</option>
+            <option value="CD">Congo (DRC) (CD)</option>
+            <option value="CG">Congo (Republic) (CG)</option>
+            <option value="CI">Côte d'Ivoire (CI)</option>
+            <option value="DJ">Djibouti (DJ)</option>
+            <option value="EG">Egypt (EG)</option>
+            <option value="GQ">Equatorial Guinea (GQ)</option>
+            <option value="ER">Eritrea (ER)</option>
+            <option value="SZ">Eswatini (SZ)</option>
+            <option value="ET">Ethiopia (ET)</option>
+            <option value="GA">Gabon (GA)</option>
+            <option value="GM">Gambia (GM)</option>
             <option value="GH">Ghana (GH)</option>
+            <option value="GN">Guinea (GN)</option>
+            <option value="GW">Guinea-Bissau (GW)</option>
             <option value="KE">Kenya (KE)</option>
+            <option value="LS">Lesotho (LS)</option>
+            <option value="LR">Liberia (LR)</option>
+            <option value="LY">Libya (LY)</option>
+            <option value="MG">Madagascar (MG)</option>
+            <option value="MW">Malawi (MW)</option>
+            <option value="ML">Mali (ML)</option>
+            <option value="MR">Mauritania (MR)</option>
+            <option value="MU">Mauritius (MU)</option>
+            <option value="MA">Morocco (MA)</option>
+            <option value="MZ">Mozambique (MZ)</option>
+            <option value="NA">Namibia (NA)</option>
+            <option value="NE">Niger (NE)</option>
+            <option value="NG">Nigeria (NG)</option>
+            <option value="RE">Réunion (RE)</option>
+            <option value="RW">Rwanda (RW)</option>
+            <option value="ST">São Tomé and Príncipe (ST)</option>
+            <option value="SN">Senegal (SN)</option>
+            <option value="SC">Seychelles (SC)</option>
+            <option value="SL">Sierra Leone (SL)</option>
+            <option value="SO">Somalia (SO)</option>
+            <option value="ZA">South Africa (ZA)</option>
+            <option value="SS">South Sudan (SS)</option>
+            <option value="SD">Sudan (SD)</option>
+            <option value="TZ">Tanzania (TZ)</option>
+            <option value="TG">Togo (TG)</option>
+            <option value="TN">Tunisia (TN)</option>
+            <option value="UG">Uganda (UG)</option>
+            <option value="EH">Western Sahara (EH)</option>
+            <option value="ZM">Zambia (ZM)</option>
+            <option value="ZW">Zimbabwe (ZW)</option>
           </select>
         </div>
 
